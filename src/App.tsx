@@ -1,5 +1,3 @@
-"use client";
-
 import { useMemo, useState, type ReactNode } from "react";
 import {
   REPORT_DATA,
@@ -139,7 +137,7 @@ function CollapsiblePanel({
   );
 }
 
-export default function Home() {
+export default function App() {
   const [country, setCountry] = useState<Country>("CZ");
   const [type, setType] = useState<PostType>("static");
   const [activeMonth, setActiveMonth] = useState<string | null>(null);
