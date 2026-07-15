@@ -10,6 +10,7 @@ Source screenshots for future Sconto SoMe MoM report updates.
 - `sk-fb-posts.png` - SK Facebook posts, provided with the June 2026 batch.
 - `sk-ig.png` - SK Instagram, June 2026.
 - `cz-ig.png` - CZ Instagram, June 2026.
+- `sconto-cerven-2026-zadani.md` - canonical implementation brief and source tables.
 
 ## Note
 

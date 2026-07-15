@@ -2,42 +2,83 @@ import { useMemo, useState, type ReactNode } from "react";
 import {
   REPORT_DATA,
   REPORT_LOGO,
+  type ContentType,
   type Country,
-  type PostType,
+  type Platform,
   type ReportRow,
 } from "./report-data";
 
 type Tier = {
-  ratio: number;
-  tierClass: "good" | "avg" | "bad";
+  ratio: number | null;
+  tierClass: "good" | "avg" | "bad" | "neutral";
   tierText: string;
 };
 
 type ScoredRow = ReportRow & Tier;
 
 const fmt = new Intl.NumberFormat("cs-CZ");
+const countries: Country[] = ["CZ", "SK"];
+const platformOrder: Platform[] = ["instagram", "facebook"];
+const contentTypeOrder: Record<Platform, ContentType[]> = {
+  instagram: ["reel", "post"],
+  facebook: ["video", "article", "post"],
+};
+
+const platformLabels: Record<Platform, string> = {
+  instagram: "📸 Instagram",
+  facebook: "📘 Facebook",
+};
+
+const contentTypeLabels: Record<ContentType, string> = {
+  reel: "🎬 Reels",
+  post: "🖼️ Posty",
+  video: "▶ Video",
+  article: "🔗 Články",
+};
+
+function eligibleRows(rows: ReportRow[]) {
+  return rows.filter(
+    (row) =>
+      row.rankingEligible &&
+      row.results !== null &&
+      row.results > 0 &&
+      row.costPerResultEur !== null,
+  );
+}
 
 function stats(rows: ReportRow[]) {
-  const sum = (key: keyof Pick<ReportRow, "spend" | "engagements" | "reach" | "cpm">) =>
-    rows.reduce((total, row) => total + (Number(row[key]) || 0), 0);
-  const spend = sum("spend");
-  const engagements = sum("engagements");
+  const rankedRows = eligibleRows(rows);
+  const totalSpend = rows.reduce((total, row) => total + row.spendEur, 0);
+  const benchmarkSpend = rankedRows.reduce(
+    (total, row) => total + row.spendEur,
+    0,
+  );
+  const results = rankedRows.reduce((total, row) => total + (row.results ?? 0), 0);
 
   return {
     posts: rows.length,
-    spend,
-    engagements,
-    reach: sum("reach"),
-    avgCpe: engagements ? spend / engagements : 0,
-    avgCpm: rows.length ? sum("cpm") / rows.length : 0,
+    spend: totalSpend,
+    benchmarkSpend,
+    results,
+    reach: rows.reduce((total, row) => total + (row.reach ?? 0), 0),
+    avgCost: results ? benchmarkSpend / results : null,
   };
 }
 
 function scoreRows(rows: ReportRow[]): ScoredRow[] {
-  const benchmark = stats(rows).avgCpe || 1;
+  const benchmark = stats(rows).avgCost;
 
   return rows.map((row) => {
-    const ratio = (Number(row.cpe) || 0) / benchmark;
+    if (!row.rankingEligible || !benchmark || row.costPerResultEur === null) {
+      return {
+        ...row,
+        ratio: null,
+        tierClass: "neutral",
+        tierText: "Nehodnoceno",
+      };
+    }
+
+    const ratio = row.costPerResultEur / benchmark;
     if (ratio <= 0.8) {
       return { ...row, ratio, tierClass: "good", tierText: "Top" };
     }
@@ -65,18 +106,28 @@ function monthName(key: string) {
   );
 }
 
-function formatEuro(value: number) {
-  return (Number(value) || 0).toLocaleString("cs-CZ", {
-    style: "currency",
-    currency: "EUR",
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  });
+function availablePlatforms(country: Country) {
+  const existing = new Set(
+    REPORT_DATA.filter((row) => row.country === country).map((row) => row.platform),
+  );
+  return platformOrder.filter((platform) => existing.has(platform));
 }
 
-function formatCpe(value: number, type: PostType) {
-  const digits = type === "reels" ? 3 : 2;
-  return (Number(value) || 0).toLocaleString("cs-CZ", {
+function availableContentTypes(country: Country, platform: Platform) {
+  const existing = new Set(
+    REPORT_DATA.filter(
+      (row) => row.country === country && row.platform === platform,
+    ).map((row) => row.contentType),
+  );
+  return contentTypeOrder[platform].filter((type) => existing.has(type));
+}
+
+function formatEuro(value: number | null, digits = 2) {
+  if (value === null || Number.isNaN(value)) {
+    return "-";
+  }
+
+  return value.toLocaleString("cs-CZ", {
     style: "currency",
     currency: "EUR",
     minimumFractionDigits: digits,
@@ -84,9 +135,45 @@ function formatCpe(value: number, type: PostType) {
   });
 }
 
+function costDigits(row: Pick<ReportRow, "contentType" | "resultType">) {
+  if (row.resultType === "landing_page_view" || row.contentType === "article") {
+    return 2;
+  }
+  return row.contentType === "reel" || row.contentType === "video" ? 3 : 2;
+}
+
+function metricLabel(contentType: ContentType) {
+  return contentType === "article" ? "Cost / LPV" : "CPE";
+}
+
+function formatMetric(row: ReportRow) {
+  const value =
+    row.resultType === "landing_page_view"
+      ? row.costPerLandingPageViewEur
+      : row.cpeEur;
+  return formatEuro(value, costDigits(row));
+}
+
+function formatResult(row: ReportRow) {
+  if (row.results === null) {
+    return "-";
+  }
+
+  const label =
+    row.resultType === "landing_page_view" ? "LP Views" : "engagements";
+  return `${fmt.format(Math.round(row.results))} ${label}`;
+}
+
 function Preview({ row }: { row: ReportRow }) {
-  if (row.thumb) {
-    return <img className="preview" src={row.thumb} alt="Preview postu" />;
+  if (row.thumbnail) {
+    return (
+      <img
+        className="preview"
+        src={row.thumbnail}
+        alt={`Preview obsahu ${row.title}`}
+        loading="lazy"
+      />
+    );
   }
 
   return (
@@ -139,12 +226,24 @@ function CollapsiblePanel({
 
 export default function App() {
   const [country, setCountry] = useState<Country>("CZ");
-  const [type, setType] = useState<PostType>("static");
+  const [platform, setPlatform] = useState<Platform>("instagram");
+  const [contentType, setContentType] = useState<ContentType>("reel");
   const [activeMonth, setActiveMonth] = useState<string | null>(null);
-  const [topOpen, setTopOpen] = useState(true);
-  const [monthlyOpen, setMonthlyOpen] = useState(true);
+  const [topOpen, setTopOpen] = useState(false);
+  const [monthlyOpen, setMonthlyOpen] = useState(false);
 
-  const baseRows = REPORT_DATA[country][type];
+  const platforms = availablePlatforms(country);
+  const selectedPlatform = platforms.includes(platform) ? platform : platforms[0];
+  const contentTypes = availableContentTypes(country, selectedPlatform);
+  const selectedContentType = contentTypes.includes(contentType)
+    ? contentType
+    : contentTypes[0];
+  const baseRows = REPORT_DATA.filter(
+    (row) =>
+      row.country === country &&
+      row.platform === selectedPlatform &&
+      row.contentType === selectedContentType,
+  );
   const months = useMemo(() => monthKeys(baseRows), [baseRows]);
   const selectedMonth =
     activeMonth && months.includes(activeMonth) ? activeMonth : months[0] || "";
@@ -154,20 +253,33 @@ export default function App() {
   );
   const scoredRows = useMemo(() => scoreRows(rows), [rows]);
   const dashboardStats = stats(rows);
-  const sortedRows = [...scoredRows].sort((a, b) => a.cpe - b.cpe);
-  const topRows = sortedRows.slice(0, 10);
-  const bestPost = sortedRows[0];
-  const formatLabel = type === "reels" ? "Reels" : "Statické posty";
+  const sortedRows = [...scoredRows].sort((a, b) => {
+    if (!a.rankingEligible && !b.rankingEligible) {
+      return a.title.localeCompare(b.title, "cs");
+    }
+    if (!a.rankingEligible) return 1;
+    if (!b.rankingEligible) return -1;
+    return (a.costPerResultEur ?? Number.POSITIVE_INFINITY) -
+      (b.costPerResultEur ?? Number.POSITIVE_INFINITY);
+  });
+  const topRows = sortedRows.filter((row) => row.rankingEligible).slice(0, 10);
+  const bestPost = topRows[0];
   const countryLabel = country === "CZ" ? "🇨🇿 CZ" : "🇸🇰 SK";
   const allSectionsOpen = topOpen && monthlyOpen;
+  const primaryMetric = metricLabel(selectedContentType);
 
   function selectCountry(nextCountry: Country) {
     setCountry(nextCountry);
     setActiveMonth(null);
   }
 
-  function selectType(nextType: PostType) {
-    setType(nextType);
+  function selectPlatform(nextPlatform: Platform) {
+    setPlatform(nextPlatform);
+    setActiveMonth(null);
+  }
+
+  function selectContentType(nextContentType: ContentType) {
+    setContentType(nextContentType);
     setActiveMonth(null);
   }
 
@@ -184,19 +296,18 @@ export default function App() {
           <img src={REPORT_LOGO} alt="Sconto Nábytek" />
         </div>
         <div className="heroText glass">
-          <h1>IG Post Reporting</h1>
+          <h1>SoMe Post Reporting</h1>
           <p className="subtitle">
-            Dashboard výkonu instagramových postů podle metriky cost per
-            engagement. Obsahuje českou i slovenskou verzi, odděluje statické
-            posty a Reels, mapuje preview postů ze screenshotů a porovnává
-            výstupy pomocí škálovacího semaforu.
+            Dashboard výkonu social obsahu podle země, platformy, typu obsahu a
+            měsíce. Instagramové a facebookové segmenty se benchmarkují odděleně;
+            články používají Cost / LPV a engagementové formáty používají CPE.
           </p>
         </div>
       </section>
 
       <div className="navWrap" aria-label="Filtry reportu">
         <nav className="tabs" aria-label="Země">
-          {(["CZ", "SK"] as Country[]).map((item) => (
+          {countries.map((item) => (
             <button
               className={`tab ${country === item ? "active" : ""}`}
               key={item}
@@ -208,21 +319,30 @@ export default function App() {
           ))}
         </nav>
 
-        <nav className="tabs" aria-label="Formát">
-          <button
-            className={`tab ${type === "static" ? "active" : ""}`}
-            type="button"
-            onClick={() => selectType("static")}
-          >
-            🖼️ Statické posty
-          </button>
-          <button
-            className={`tab ${type === "reels" ? "active" : ""}`}
-            type="button"
-            onClick={() => selectType("reels")}
-          >
-            🎬 Reels
-          </button>
+        <nav className="tabs" aria-label="Platforma">
+          {platforms.map((item) => (
+            <button
+              className={`tab ${selectedPlatform === item ? "active" : ""}`}
+              key={item}
+              type="button"
+              onClick={() => selectPlatform(item)}
+            >
+              {platformLabels[item]}
+            </button>
+          ))}
+        </nav>
+
+        <nav className="tabs" aria-label="Typ obsahu">
+          {contentTypes.map((item) => (
+            <button
+              className={`tab ${selectedContentType === item ? "active" : ""}`}
+              key={item}
+              type="button"
+              onClick={() => selectContentType(item)}
+            >
+              {contentTypeLabels[item]}
+            </button>
+          ))}
         </nav>
 
         <nav className="tabs monthTabs" aria-label="Měsíc">
@@ -259,8 +379,12 @@ export default function App() {
               <strong>{countryLabel}</strong>
             </div>
             <div className="kpi">
-              <span>Formát</span>
-              <strong>{formatLabel}</strong>
+              <span>Platforma</span>
+              <strong>{platformLabels[selectedPlatform].replace(/^[^A-ZÁ-ž]+\s?/, "")}</strong>
+            </div>
+            <div className="kpi">
+              <span>Segment</span>
+              <strong>{contentTypeLabels[selectedContentType].replace(/^[^\wÁ-ž]+\s?/, "")}</strong>
             </div>
             <div className="kpi">
               <span>Měsíc</span>
@@ -271,43 +395,54 @@ export default function App() {
               <strong>{fmt.format(dashboardStats.posts)}</strong>
             </div>
             <div className="kpi">
-              <span>Průměrný CPE</span>
-              <strong>{formatCpe(dashboardStats.avgCpe, type)}</strong>
-            </div>
-            <div className="kpi">
-              <span>Spend</span>
-              <strong>{formatEuro(dashboardStats.spend)}</strong>
+              <span>Průměrný {primaryMetric}</span>
+              <strong>
+                {formatEuro(
+                  dashboardStats.avgCost,
+                  selectedContentType === "reel" || selectedContentType === "video"
+                    ? 3
+                    : 2,
+                )}
+              </strong>
             </div>
           </div>
 
           <CollapsiblePanel
-            title="Top 10 podle cost per engagement"
+            title={`Top 10 podle ${primaryMetric}`}
             open={topOpen}
             onToggle={() => setTopOpen((current) => !current)}
             hint={
               <>
-                Seřazeno od nejnižší ceny za engagement pro aktivní měsíc.
-                Benchmark se počítá zvlášť pro aktuální zemi a formát.
+                Nižší cost per result znamená lepší výkon. Benchmark se počítá
+                pouze z hodnocených položek ve zvolené zemi, platformě, segmentu
+                a měsíci.
               </>
             }
           >
-            <div className="topList">
-              {topRows.map((row, index) => (
-                <div className="topItem" key={`${row.country}-${row.type}-${row.title}-${row.date}`}>
-                  <div className="rank">{index + 1}</div>
-                  <Preview row={row} />
-                  <div>
-                    <div className="title">{row.title}</div>
-                    {row.snippet ? <div className="snippet">{row.snippet}</div> : null}
-                    <div className="meta">
-                      {row.date} · {fmt.format(Math.round(row.engagements))}{" "}
-                      engagements · <TierBadge row={row} />
+            {topRows.length ? (
+              <div className="topList">
+                {topRows.map((row, index) => (
+                  <div className="topItem" key={row.id}>
+                    <div className="rank">{index + 1}</div>
+                    <Preview row={row} />
+                    <div>
+                      <div className="title">{row.title}</div>
+                      {row.snippet ? (
+                        <div className="snippet">{row.snippet}</div>
+                      ) : null}
+                      <div className="meta">
+                        {row.date} · {formatResult(row)} · <TierBadge row={row} />
+                      </div>
                     </div>
+                    <div className="metric">{formatMetric(row)}</div>
                   </div>
-                  <div className="metric">{formatCpe(row.cpe, type)}</div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            ) : (
+              <div className="emptyState">
+                V tomto segmentu nejsou hodnocené položky pro žebříček.
+              </div>
+            )}
           </CollapsiblePanel>
 
           <CollapsiblePanel
@@ -317,16 +452,20 @@ export default function App() {
             hint={
               <>
                 {selectedMonth ? monthName(selectedMonth) : "-"} ·{" "}
-                {fmt.format(rows.length)} postů · avg CPE{" "}
-                {formatCpe(dashboardStats.avgCpe, type)} ·{" "}
-                {fmt.format(Math.round(dashboardStats.engagements))} engagements
-                · reach {fmt.format(Math.round(dashboardStats.reach))} · spend{" "}
+                {fmt.format(rows.length)} položek · průměrný {primaryMetric}{" "}
+                {formatEuro(
+                  dashboardStats.avgCost,
+                  selectedContentType === "reel" || selectedContentType === "video"
+                    ? 3
+                    : 2,
+                )}{" "}
+                · hodnocené výsledky {fmt.format(dashboardStats.results)} ·
+                reach {fmt.format(Math.round(dashboardStats.reach))} · spend{" "}
                 {formatEuro(dashboardStats.spend)}
                 {bestPost ? (
                   <>
                     {" "}
-                    · nejlepší post: {bestPost.title} (
-                    {formatCpe(bestPost.cpe, type)})
+                    · nejlepší položka: {bestPost.title} ({formatMetric(bestPost)})
                   </>
                 ) : null}
               </>
@@ -336,18 +475,18 @@ export default function App() {
               <table>
                 <thead>
                   <tr>
-                    <th>Post</th>
-                    <th>CPE</th>
-                    <th>Semafor</th>
-                    <th>Engagements</th>
+                    <th>Obsah</th>
+                    <th>Cost / result</th>
+                    <th>Stav</th>
+                    <th>Výsledek</th>
                     <th>Reach</th>
                     <th>Spend</th>
-                    <th>Index vs průměr</th>
+                    <th>Index vs benchmark</th>
                   </tr>
                 </thead>
                 <tbody>
                   {sortedRows.map((row) => (
-                    <tr key={`${row.country}-${row.type}-${row.title}-${row.date}`}>
+                    <tr key={row.id}>
                       <td>
                         <div className="postCell">
                           <Preview row={row} />
@@ -361,29 +500,48 @@ export default function App() {
                         </div>
                       </td>
                       <td>
-                        <strong>{formatCpe(row.cpe, type)}</strong>
+                        <strong>{formatMetric(row)}</strong>
+                        <div className="meta">
+                          {row.resultType === "landing_page_view"
+                            ? "Landing Page View"
+                            : "Post Engagement"}
+                        </div>
                       </td>
                       <td>
                         <TierBadge row={row} />
+                        {row.optimizationMismatch ? (
+                          <div className="meta">
+                            Odlišný optimalizační cíl - položka není zahrnuta do
+                            CPE benchmarku.
+                          </div>
+                        ) : null}
                       </td>
-                      <td>{fmt.format(Math.round(row.engagements))}</td>
-                      <td>{fmt.format(Math.round(row.reach))}</td>
-                      <td>{formatEuro(row.spend)}</td>
+                      <td>{formatResult(row)}</td>
                       <td>
-                        <div className="barWrap">
-                          <div
-                            className={`bar ${row.tierClass}`}
-                            style={{
-                              width: `${Math.min(
-                                100,
-                                Math.round(row.ratio * 70),
-                              )}%`,
-                            }}
-                          />
-                        </div>
-                        <div className="meta">
-                          {Math.round(row.ratio * 100)} % průměru
-                        </div>
+                        {row.reach === null ? "-" : fmt.format(Math.round(row.reach))}
+                      </td>
+                      <td>{formatEuro(row.spendEur)}</td>
+                      <td>
+                        {row.ratio === null ? (
+                          <span className="meta">Mimo benchmark</span>
+                        ) : (
+                          <>
+                            <div className="barWrap">
+                              <div
+                                className={`bar ${row.tierClass}`}
+                                style={{
+                                  width: `${Math.min(
+                                    100,
+                                    Math.round(row.ratio * 70),
+                                  )}%`,
+                                }}
+                              />
+                            </div>
+                            <div className="meta">
+                              {Math.round(row.ratio * 100)} % průměru
+                            </div>
+                          </>
+                        )}
                       </td>
                     </tr>
                   ))}
