@@ -54,13 +54,16 @@ function stats(rows: ReportRow[]) {
     0,
   );
   const results = rankedRows.reduce((total, row) => total + (row.results ?? 0), 0);
+  const reachRows = rows.filter((row) => row.reach !== null);
 
   return {
     posts: rows.length,
     spend: totalSpend,
     benchmarkSpend,
     results,
-    reach: rows.reduce((total, row) => total + (row.reach ?? 0), 0),
+    reach: reachRows.length
+      ? reachRows.reduce((total, row) => total + (row.reach ?? 0), 0)
+      : null,
     avgCost: results ? benchmarkSpend / results : null,
   };
 }
@@ -460,7 +463,11 @@ export default function App() {
                     : 2,
                 )}{" "}
                 · hodnocené výsledky {fmt.format(dashboardStats.results)} ·
-                reach {fmt.format(Math.round(dashboardStats.reach))} · spend{" "}
+                reach{" "}
+                {dashboardStats.reach === null
+                  ? "-"
+                  : fmt.format(Math.round(dashboardStats.reach))}{" "}
+                · spend{" "}
                 {formatEuro(dashboardStats.spend)}
                 {bestPost ? (
                   <>
