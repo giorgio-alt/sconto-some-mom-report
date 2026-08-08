@@ -16,6 +16,14 @@ type Tier = {
 
 type ScoredRow = ReportRow & Tier;
 
+type SummaryStats = {
+  spend: number;
+  reach: number;
+  engagements: number;
+  avgCpe: number | null;
+  posts: number;
+};
+
 const fmt = new Intl.NumberFormat("cs-CZ");
 const countries: Country[] = ["CZ", "SK"];
 const platformOrder: Platform[] = ["instagram", "facebook"];
@@ -65,6 +73,23 @@ function stats(rows: ReportRow[]) {
       ? reachRows.reduce((total, row) => total + (row.reach ?? 0), 0)
       : null,
     avgCost: results ? benchmarkSpend / results : null,
+  };
+}
+
+function summaryStats(rows: ReportRow[]): SummaryStats {
+  const spend = rows.reduce((total, row) => total + row.spendEur, 0);
+  const reach = rows.reduce((total, row) => total + (row.reach ?? 0), 0);
+  const engagements = rows.reduce(
+    (total, row) => total + (row.engagements ?? 0),
+    0,
+  );
+
+  return {
+    spend,
+    reach,
+    engagements,
+    avgCpe: engagements ? spend / engagements : null,
+    posts: rows.length,
   };
 }
 
@@ -270,6 +295,15 @@ export default function App() {
   const countryLabel = country === "CZ" ? "🇨🇿 CZ" : "🇸🇰 SK";
   const allSectionsOpen = topOpen && monthlyOpen;
   const primaryMetric = metricLabel(selectedContentType);
+  const globalSummary = useMemo(() => summaryStats(REPORT_DATA), []);
+  const countrySummaries = useMemo(
+    () =>
+      countries.map((item) => ({
+        country: item,
+        ...summaryStats(REPORT_DATA.filter((row) => row.country === item)),
+      })),
+    [],
+  );
 
   function selectCountry(nextCountry: Country) {
     setCountry(nextCountry);
@@ -305,6 +339,75 @@ export default function App() {
             měsíce. Instagramové a facebookové segmenty se benchmarkují odděleně;
             články používají Cost / LPV a engagementové formáty používají CPE.
           </p>
+        </div>
+      </section>
+
+      <section className="summaryBlock reveal visible" aria-labelledby="summary-title">
+        <div className="sectionHeader">
+          <div>
+            <h2 id="summary-title">Souhrn kampaní</h2>
+            <p className="hint">
+              Celkový pohled přes všechny dostupné země, formáty a měsíce.
+            </p>
+          </div>
+        </div>
+
+        <div className="summaryKpis" aria-label="Celkový souhrn">
+          <div className="kpi">
+            <span>Spend celkem</span>
+            <strong>{formatEuro(globalSummary.spend)}</strong>
+          </div>
+          <div className="kpi">
+            <span>Reach celkem</span>
+            <strong>{fmt.format(Math.round(globalSummary.reach))}</strong>
+          </div>
+          <div className="kpi">
+            <span>Engagements</span>
+            <strong>{fmt.format(Math.round(globalSummary.engagements))}</strong>
+          </div>
+          <div className="kpi">
+            <span>Avg CPE</span>
+            <strong>{formatEuro(globalSummary.avgCpe, 3)}</strong>
+          </div>
+          <div className="kpi">
+            <span>Posty s delivery</span>
+            <strong>{fmt.format(globalSummary.posts)}</strong>
+          </div>
+        </div>
+
+        <div className="countryBreakdown" aria-label="Rozpad podle země">
+          <div className="breakdownHeader">
+            <h3>Rozpad podle země</h3>
+          </div>
+          <div className="breakdownGrid">
+            {countrySummaries.map((item) => (
+              <div className="countryRow" key={item.country}>
+                <div className="countryName">
+                  {item.country === "CZ" ? "🇨🇿 CZ" : "🇸🇰 SK"}
+                </div>
+                <div>
+                  <span>Spend</span>
+                  <strong>{formatEuro(item.spend)}</strong>
+                </div>
+                <div>
+                  <span>Reach</span>
+                  <strong>{fmt.format(Math.round(item.reach))}</strong>
+                </div>
+                <div>
+                  <span>Engagements</span>
+                  <strong>{fmt.format(Math.round(item.engagements))}</strong>
+                </div>
+                <div>
+                  <span>Avg CPE</span>
+                  <strong>{formatEuro(item.avgCpe, 3)}</strong>
+                </div>
+                <div>
+                  <span>Posty</span>
+                  <strong>{fmt.format(item.posts)}</strong>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 

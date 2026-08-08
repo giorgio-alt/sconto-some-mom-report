@@ -211,6 +211,25 @@ h1 {
   margin: 20px 0;
 }
 
+.summaryBlock {
+  margin: 0 0 24px;
+}
+
+.sectionHeader {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  align-items: end;
+  margin: 0 0 14px;
+}
+
+.summaryKpis {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 14px;
+  margin: 0 0 18px;
+}
+
 .kpi {
   padding: 20px;
   border-radius: 28px;
@@ -240,6 +259,55 @@ h1 {
   margin-top: 10px;
   font-size: 26px;
   line-height: 1.05;
+}
+
+.countryBreakdown {
+  display: grid;
+  gap: 10px;
+}
+
+.breakdownHeader h3 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.breakdownGrid {
+  display: grid;
+  gap: 10px;
+}
+
+.countryRow {
+  display: grid;
+  grid-template-columns: 120px repeat(5, minmax(120px, 1fr));
+  gap: 10px;
+  align-items: center;
+  padding: 14px;
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.48);
+  border: 1px solid rgba(255, 255, 255, 0.58);
+  box-shadow: 0 14px 36px rgba(16, 21, 40, 0.09);
+  backdrop-filter: blur(16px);
+}
+
+.countryName {
+  font-weight: 950;
+  font-size: 18px;
+}
+
+.countryRow span {
+  display: block;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+}
+
+.countryRow strong {
+  display: block;
+  margin-top: 4px;
+  font-size: 18px;
+  line-height: 1.15;
 }
 
 .panel {
@@ -520,8 +588,13 @@ td:last-child {
 }
 
 @media (max-width: 1180px) {
-  .kpis {
+  .kpis,
+  .summaryKpis {
     grid-template-columns: repeat(3, 1fr);
+  }
+
+  .countryRow {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 
@@ -530,7 +603,8 @@ td:last-child {
     grid-template-columns: 1fr;
   }
 
-  .kpis {
+  .kpis,
+  .summaryKpis {
     grid-template-columns: repeat(2, 1fr);
   }
 
@@ -594,6 +668,11 @@ td:last-child {
   }
 
   .kpis {
+    grid-template-columns: 1fr;
+  }
+
+  .summaryKpis,
+  .countryRow {
     grid-template-columns: 1fr;
   }
 
