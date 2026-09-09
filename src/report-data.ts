@@ -1,3 +1,4 @@
+import { AUGUST_2026_RECORDS } from "./august-data";
 import { JULY_2026_RECORDS } from "./july-data";
 
 export type Country = "CZ" | "SK";
@@ -925,4 +926,9 @@ function legacyToRows() {
   );
 }
 
-export const REPORT_DATA = [...legacyToRows(), ...JUNE_2026_RECORDS, ...JULY_2026_RECORDS] satisfies ReportRow[];
+export const REPORT_DATA = [
+  ...legacyToRows(),
+  ...JUNE_2026_RECORDS,
+  ...JULY_2026_RECORDS,
+  ...AUGUST_2026_RECORDS,
+] satisfies ReportRow[];
