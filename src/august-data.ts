@@ -24,7 +24,15 @@ type RawAugustRow = {
   engagements?: number;
   landingPageViews?: number;
   optimizationMismatch?: boolean;
+  hasThumbnail?: boolean;
 };
+
+const thumbnailFolder = {
+  article: "articles",
+  video: "video",
+  post: "posts",
+  reel: "reels",
+} satisfies Record<ContentType, string>;
 
 function normalizeDate(value: string) {
   const [day, month, year] = value.split("/");
@@ -65,7 +73,9 @@ function row(input: RawAugustRow): ReportRow {
     optimizationMismatch: input.optimizationMismatch,
     rankingEligible:
       !input.optimizationMismatch && results !== null && results > 0,
-    thumbnail: null,
+    thumbnail: input.hasThumbnail
+      ? `/thumbnails/${MONTH_KEY}/${input.country.toLowerCase()}/${input.platform}/${thumbnailFolder[input.contentType]}/${input.slug}.png`
+      : null,
   };
 }
 
@@ -84,6 +94,7 @@ export const AUGUST_2026_RECORDS = [
     linkClicks: 764,
     cpcEur: 0.05,
     ctrPct: 3.22,
+    hasThumbnail: true,
   }),
   row({
     country: "CZ",
@@ -99,6 +110,7 @@ export const AUGUST_2026_RECORDS = [
     linkClicks: 230,
     cpcEur: 0.17,
     ctrPct: 2.11,
+    hasThumbnail: true,
   }),
   row({
     country: "CZ",
@@ -114,6 +126,7 @@ export const AUGUST_2026_RECORDS = [
     linkClicks: 186,
     cpcEur: 0.21,
     ctrPct: 1.11,
+    hasThumbnail: true,
   }),
   row({
     country: "CZ",
@@ -129,6 +142,7 @@ export const AUGUST_2026_RECORDS = [
     linkClicks: 318,
     cpcEur: 0.09,
     ctrPct: 3.23,
+    hasThumbnail: true,
   }),
   row({
     country: "CZ",
@@ -144,6 +158,7 @@ export const AUGUST_2026_RECORDS = [
     linkClicks: 65,
     cpcEur: 0.25,
     ctrPct: 1.24,
+    hasThumbnail: true,
   }),
   row({
     country: "SK",
@@ -159,6 +174,7 @@ export const AUGUST_2026_RECORDS = [
     linkClicks: 948,
     cpcEur: 0.04,
     ctrPct: 2.77,
+    hasThumbnail: true,
   }),
   row({
     country: "SK",
@@ -174,6 +190,7 @@ export const AUGUST_2026_RECORDS = [
     linkClicks: 713,
     cpcEur: 0.06,
     ctrPct: 3.03,
+    hasThumbnail: true,
   }),
   row({
     country: "SK",
@@ -189,6 +206,7 @@ export const AUGUST_2026_RECORDS = [
     linkClicks: 1126,
     cpcEur: 0.04,
     ctrPct: 3.99,
+    hasThumbnail: true,
   }),
   row({
     country: "SK",
@@ -204,6 +222,7 @@ export const AUGUST_2026_RECORDS = [
     linkClicks: 366,
     cpcEur: 0.11,
     ctrPct: 1.65,
+    hasThumbnail: true,
   }),
   row({
     country: "SK",
@@ -219,6 +238,7 @@ export const AUGUST_2026_RECORDS = [
     linkClicks: 149,
     cpcEur: 0.12,
     ctrPct: 1.31,
+    hasThumbnail: true,
   }),
   row({
     country: "CZ",
@@ -232,6 +252,7 @@ export const AUGUST_2026_RECORDS = [
     engagements: 8882,
     reach: 13735,
     cpmEur: 1.7,
+    hasThumbnail: true,
   }),
   row({
     country: "CZ",
@@ -245,6 +266,7 @@ export const AUGUST_2026_RECORDS = [
     engagements: 12571,
     reach: 15762,
     cpmEur: 1.36,
+    hasThumbnail: true,
   }),
   row({
     country: "CZ",
@@ -258,6 +280,7 @@ export const AUGUST_2026_RECORDS = [
     engagements: 8322,
     reach: 11084,
     cpmEur: 1.9,
+    hasThumbnail: true,
   }),
   row({
     country: "CZ",
@@ -271,6 +294,7 @@ export const AUGUST_2026_RECORDS = [
     engagements: 4954,
     reach: 9199,
     cpmEur: 1.58,
+    hasThumbnail: true,
   }),
   row({
     country: "CZ",
@@ -284,6 +308,7 @@ export const AUGUST_2026_RECORDS = [
     engagements: 4130,
     reach: 7565,
     cpmEur: 1.56,
+    hasThumbnail: true,
   }),
   row({
     country: "CZ",
@@ -297,6 +322,7 @@ export const AUGUST_2026_RECORDS = [
     engagements: 6370,
     reach: 10407,
     cpmEur: 1.27,
+    hasThumbnail: true,
   }),
   row({
     country: "CZ",
@@ -310,6 +336,7 @@ export const AUGUST_2026_RECORDS = [
     engagements: 132,
     reach: 2906,
     cpmEur: 2,
+    hasThumbnail: true,
   }),
   row({
     country: "CZ",
@@ -323,6 +350,7 @@ export const AUGUST_2026_RECORDS = [
     engagements: 89,
     reach: 1275,
     cpmEur: 2.08,
+    hasThumbnail: true,
   }),
   row({
     country: "SK",
@@ -335,6 +363,7 @@ export const AUGUST_2026_RECORDS = [
     spendEur: 31.95,
     engagements: 14569,
     reach: 18932,
+    hasThumbnail: true,
   }),
   row({
     country: "SK",
@@ -347,6 +376,7 @@ export const AUGUST_2026_RECORDS = [
     spendEur: 29.47,
     engagements: 9542,
     reach: 13510,
+    hasThumbnail: true,
   }),
   row({
     country: "SK",
@@ -359,6 +389,7 @@ export const AUGUST_2026_RECORDS = [
     spendEur: 15.99,
     engagements: 5810,
     reach: 11594,
+    hasThumbnail: true,
   }),
   row({
     country: "SK",
@@ -371,6 +402,7 @@ export const AUGUST_2026_RECORDS = [
     spendEur: 15.97,
     engagements: 6879,
     reach: 11118,
+    hasThumbnail: true,
   }),
   row({
     country: "SK",
@@ -383,6 +415,7 @@ export const AUGUST_2026_RECORDS = [
     spendEur: 15.97,
     engagements: 7697,
     reach: 12016,
+    hasThumbnail: true,
   }),
   row({
     country: "SK",
@@ -395,6 +428,7 @@ export const AUGUST_2026_RECORDS = [
     spendEur: 15.95,
     engagements: 5519,
     reach: 10047,
+    hasThumbnail: true,
   }),
   row({
     country: "SK",
@@ -407,6 +441,7 @@ export const AUGUST_2026_RECORDS = [
     spendEur: 8.01,
     engagements: 129,
     reach: 3509,
+    hasThumbnail: true,
   }),
   row({
     country: "SK",
@@ -419,6 +454,7 @@ export const AUGUST_2026_RECORDS = [
     spendEur: 7.97,
     engagements: 180,
     reach: 3711,
+    hasThumbnail: true,
   }),
   row({
     country: "SK",
@@ -431,6 +467,7 @@ export const AUGUST_2026_RECORDS = [
     spendEur: 7.97,
     engagements: 474,
     reach: 4859,
+    hasThumbnail: true,
   }),
   row({
     country: "SK",
@@ -443,6 +480,7 @@ export const AUGUST_2026_RECORDS = [
     spendEur: 3.93,
     engagements: 48,
     reach: 1422,
+    hasThumbnail: true,
   }),
   row({
     country: "CZ",

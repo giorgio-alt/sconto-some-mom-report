@@ -23,6 +23,10 @@ dist/index.html
 dist/assets/...
 ```
 
+## Aktualizace měsíčního reportu
+
+Každý nový měsíc musí obsahovat kompletní datové řádky i samostatné thumbnaily všech kreativ. Zdrojové screenshoty se ukládají do `reference-library/YYYY-MM/`, vyříznuté náhledy do `public/thumbnails/YYYY-MM/` ve stejné struktuře jako předchozí měsíce a každý záznam musí odkazovat na odpovídající obrázek. Před dokončením je potřeba ověřit build i skutečné vykreslení náhledů v reportu.
+
 ## Cloudflare Pages
 
 ```text
