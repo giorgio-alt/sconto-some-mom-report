@@ -494,6 +494,7 @@ export const AUGUST_2026_RECORDS = [
     engagements: 9321,
     reach: 13557,
     cpmEur: 1.84,
+    hasThumbnail: true,
   }),
   row({
     country: "CZ",
@@ -507,6 +508,7 @@ export const AUGUST_2026_RECORDS = [
     engagements: 5015,
     reach: 9098,
     cpmEur: 1.69,
+    hasThumbnail: true,
   }),
   row({
     country: "CZ",
@@ -520,6 +522,7 @@ export const AUGUST_2026_RECORDS = [
     engagements: 3474,
     reach: 7109,
     cpmEur: 2.04,
+    hasThumbnail: true,
   }),
   row({
     country: "CZ",
@@ -533,6 +536,7 @@ export const AUGUST_2026_RECORDS = [
     engagements: 2789,
     reach: 6420,
     cpmEur: 2.02,
+    hasThumbnail: true,
   }),
   row({
     country: "CZ",
@@ -546,6 +550,7 @@ export const AUGUST_2026_RECORDS = [
     engagements: 3879,
     reach: 7840,
     cpmEur: 1.83,
+    hasThumbnail: true,
   }),
   row({
     country: "CZ",
@@ -559,6 +564,7 @@ export const AUGUST_2026_RECORDS = [
     engagements: 4537,
     reach: 8872,
     cpmEur: 1.45,
+    hasThumbnail: true,
   }),
   row({
     country: "CZ",
@@ -572,6 +578,7 @@ export const AUGUST_2026_RECORDS = [
     engagements: 2808,
     reach: 6513,
     cpmEur: 1.87,
+    hasThumbnail: true,
   }),
   row({
     country: "CZ",
@@ -585,6 +592,7 @@ export const AUGUST_2026_RECORDS = [
     engagements: 22,
     reach: 227,
     cpmEur: 15.91,
+    hasThumbnail: true,
   }),
   row({
     country: "CZ",
@@ -598,6 +606,7 @@ export const AUGUST_2026_RECORDS = [
     engagements: 57,
     reach: 785,
     cpmEur: 4.63,
+    hasThumbnail: true,
   }),
   row({
     country: "CZ",
@@ -611,6 +620,7 @@ export const AUGUST_2026_RECORDS = [
     engagements: 29,
     reach: 199,
     cpmEur: 17.94,
+    hasThumbnail: true,
   }),
   row({
     country: "CZ",
@@ -624,6 +634,7 @@ export const AUGUST_2026_RECORDS = [
     engagements: 41,
     reach: 600,
     cpmEur: 5.71,
+    hasThumbnail: true,
   }),
   row({
     country: "CZ",
@@ -637,6 +648,7 @@ export const AUGUST_2026_RECORDS = [
     engagements: 37,
     reach: 238,
     cpmEur: 13.92,
+    hasThumbnail: true,
   }),
   row({
     country: "CZ",
@@ -650,6 +662,7 @@ export const AUGUST_2026_RECORDS = [
     engagements: 39,
     reach: 244,
     cpmEur: 13.27,
+    hasThumbnail: true,
   }),
   row({
     country: "CZ",
@@ -663,6 +676,7 @@ export const AUGUST_2026_RECORDS = [
     engagements: 28,
     reach: 179,
     cpmEur: 18.23,
+    hasThumbnail: true,
   }),
   row({
     country: "SK",
@@ -675,6 +689,7 @@ export const AUGUST_2026_RECORDS = [
     spendEur: 31.94,
     engagements: 10135,
     reach: 15514,
+    hasThumbnail: true,
   }),
   row({
     country: "SK",
@@ -687,6 +702,7 @@ export const AUGUST_2026_RECORDS = [
     spendEur: 29.59,
     engagements: 8215,
     reach: 17692,
+    hasThumbnail: true,
   }),
   row({
     country: "SK",
@@ -699,6 +715,7 @@ export const AUGUST_2026_RECORDS = [
     spendEur: 15.98,
     engagements: 4946,
     reach: 11359,
+    hasThumbnail: true,
   }),
   row({
     country: "SK",
@@ -711,6 +728,7 @@ export const AUGUST_2026_RECORDS = [
     spendEur: 15.97,
     engagements: 5538,
     reach: 10606,
+    hasThumbnail: true,
   }),
   row({
     country: "SK",
@@ -723,6 +741,7 @@ export const AUGUST_2026_RECORDS = [
     spendEur: 15.97,
     engagements: 3914,
     reach: 8862,
+    hasThumbnail: true,
   }),
   row({
     country: "SK",
@@ -735,6 +754,7 @@ export const AUGUST_2026_RECORDS = [
     spendEur: 15.92,
     engagements: 4204,
     reach: 9683,
+    hasThumbnail: true,
   }),
   row({
     country: "SK",
@@ -747,6 +767,7 @@ export const AUGUST_2026_RECORDS = [
     spendEur: 12.01,
     engagements: 194,
     reach: 2358,
+    hasThumbnail: true,
   }),
   row({
     country: "SK",
@@ -759,6 +780,7 @@ export const AUGUST_2026_RECORDS = [
     spendEur: 4,
     engagements: 38,
     reach: 286,
+    hasThumbnail: true,
   }),
   row({
     country: "SK",
@@ -771,6 +793,7 @@ export const AUGUST_2026_RECORDS = [
     spendEur: 3.97,
     engagements: 30,
     reach: 272,
+    hasThumbnail: true,
   }),
   row({
     country: "SK",
@@ -783,6 +806,7 @@ export const AUGUST_2026_RECORDS = [
     spendEur: 3.97,
     engagements: 32,
     reach: 340,
+    hasThumbnail: true,
   }),
   row({
     country: "SK",
@@ -795,5 +819,6 @@ export const AUGUST_2026_RECORDS = [
     spendEur: 3.95,
     engagements: 40,
     reach: 319,
+    hasThumbnail: true,
   }),
 ] satisfies ReportRow[];
