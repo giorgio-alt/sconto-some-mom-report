@@ -94,7 +94,15 @@ function summaryStats(rows: ReportRow[]): SummaryStats {
 }
 
 function scoreRows(rows: ReportRow[]): ScoredRow[] {
-  const benchmark = stats(rows).avgCost;
+  const costs = eligibleRows(rows)
+    .map((row) => row.costPerResultEur!)
+    .sort((a, b) => a - b);
+  const middle = Math.floor(costs.length / 2);
+  const benchmark = costs.length === 0
+    ? null
+    : costs.length % 2 === 0
+      ? (costs[middle - 1] + costs[middle]) / 2
+      : costs[middle];
 
   return rows.map((row) => {
     if (!row.rankingEligible || !benchmark || row.costPerResultEur === null) {
@@ -107,10 +115,10 @@ function scoreRows(rows: ReportRow[]): ScoredRow[] {
     }
 
     const ratio = row.costPerResultEur / benchmark;
-    if (ratio <= 0.8) {
+    if (ratio <= 0.9) {
       return { ...row, ratio, tierClass: "good", tierText: "Top" };
     }
-    if (ratio <= 1.2) {
+    if (ratio <= 1.3) {
       return { ...row, ratio, tierClass: "avg", tierText: "Průměr" };
     }
     return { ...row, ratio, tierClass: "bad", tierText: "Slabší" };
@@ -519,9 +527,9 @@ export default function App() {
             onToggle={() => setTopOpen((current) => !current)}
             hint={
               <>
-                Nižší cost per result znamená lepší výkon. Benchmark se počítá
-                pouze z hodnocených položek ve zvolené zemi, platformě, segmentu
-                a měsíci.
+                Benchmark je medián ceny za výsledek hodnocených položek ve
+                zvolené zemi, platformě, segmentu a měsíci. Top: do 90 % mediánu,
+                průměr: do 130 %, slabší: nad 130 %.
               </>
             }
           >
@@ -591,7 +599,7 @@ export default function App() {
                     <th>Výsledek</th>
                     <th>Reach</th>
                     <th>Spend</th>
-                    <th>Index vs benchmark</th>
+                    <th>Index vs medián</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -648,7 +656,7 @@ export default function App() {
                               />
                             </div>
                             <div className="meta">
-                              {Math.round(row.ratio * 100)} % průměru
+                              {Math.round(row.ratio * 100)} % mediánu
                             </div>
                           </>
                         )}
