@@ -215,6 +215,326 @@ h1 {
   margin: 0 0 24px;
 }
 
+.summaryBlock button {
+  border: 0;
+  cursor: pointer;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+}
+
+.summaryControls,
+.trendControls {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.summarySegments {
+  display: inline-flex;
+  gap: 4px;
+  padding: 4px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.42);
+}
+
+.summarySegments button {
+  padding: 10px 14px;
+  border-radius: 5px;
+  color: var(--ink);
+  background: transparent;
+  font-size: 13px;
+  font-weight: 800;
+  white-space: nowrap;
+  transition: background 0.2s, color 0.2s;
+}
+
+.summarySegments button[aria-pressed="true"] {
+  color: white;
+  background: var(--ink);
+}
+
+.summarySelect {
+  display: flex;
+  position: relative;
+  min-width: 160px;
+}
+
+.summarySelect select {
+  width: 100%;
+  appearance: none;
+  padding: 13px 38px 13px 14px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--ink);
+  background: rgba(255, 255, 255, 0.55);
+  cursor: pointer;
+}
+
+.summarySelect svg {
+  position: absolute;
+  right: 13px;
+  top: calc(50% - 8px);
+  pointer-events: none;
+}
+
+.breakdownHeader,
+.trendHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.summaryChartAction,
+.summaryIconButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.5);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--ink);
+}
+
+.summaryIconButton {
+  padding: 0;
+  width: 36px;
+  height: 36px;
+  flex: 0 0 36px;
+}
+
+.countryMetric {
+  text-align: left;
+  padding: 4px;
+  border-radius: 5px;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  min-width: 0;
+}
+
+.countryMetric:hover,
+.summaryChartAction:hover,
+.summaryIconButton:hover {
+  background: rgba(255, 255, 255, 0.75);
+}
+
+.summaryBlock button:focus-visible,
+.summaryBlock select:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 3px;
+}
+
+.summaryTrends {
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid rgba(16, 21, 40, 0.16);
+  animation: summaryEnter 0.25s ease-out;
+}
+
+@keyframes summaryEnter {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.trendHeader h3 {
+  margin: 0;
+  font-size: 20px;
+  scroll-margin-top: 24px;
+}
+
+.trendHeader .hint {
+  margin: 6px 0 0;
+}
+
+.trendControls {
+  margin: 18px 0 12px;
+}
+
+.chartLegend {
+  display: flex;
+  gap: 18px;
+  min-height: 24px;
+  margin-bottom: 12px;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.chartLegend span {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.chartLegend i {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+}
+
+.chartLegend .cz,
+.chartBarButton.cz .chartBarFill { background: #167467; }
+.chartLegend .sk,
+.chartBarButton.sk .chartBarFill { background: #c94e69; }
+.chartLegend .total,
+.chartBarButton.total .chartBarFill { background: var(--ink); }
+
+.trendChart {
+  display: grid;
+  grid-template-columns: 76px minmax(0, 1fr);
+  gap: 12px;
+  padding: 12px 0 0;
+}
+
+.chartAxis {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 280px;
+  text-align: right;
+  font-size: 11px;
+  color: #485268;
+}
+
+.chartScroll {
+  overflow-x: auto;
+  padding: 0 4px 8px;
+}
+
+.chartPlot {
+  display: grid;
+  gap: 18px;
+  min-width: 712px;
+  position: relative;
+  background: repeating-linear-gradient(to top, transparent 0, transparent 69px, rgba(16, 21, 40, 0.09) 69px, rgba(16, 21, 40, 0.09) 70px);
+  background-size: 100% 280px;
+  background-repeat: no-repeat;
+}
+
+.chartMonth {
+  display: grid;
+  grid-template-rows: 280px 42px;
+  min-width: 0;
+}
+
+.chartBars {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 6px;
+  padding: 0 8px;
+  border-bottom: 1px solid rgba(16, 21, 40, 0.2);
+}
+
+.chartBarButton {
+  display: flex;
+  position: relative;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 0;
+  height: 100%;
+  max-width: 58px;
+  flex: 1;
+  min-width: 0;
+  background: transparent;
+  color: var(--ink);
+}
+
+.chartBarValue {
+  font-size: 10px;
+  font-weight: 800;
+  white-space: nowrap;
+  margin-bottom: 6px;
+  line-height: 1.2;
+}
+
+.chartBarFill {
+  display: block;
+  width: 100%;
+  min-height: 2px;
+  border-radius: 4px 4px 0 0;
+  opacity: 0.8;
+  transition: height 0.3s ease, opacity 0.2s;
+}
+
+.chartBarFill.missing {
+  background: rgba(16, 21, 40, 0.2) !important;
+}
+
+.chartBarButton:hover .chartBarFill,
+.chartBarButton:focus-visible .chartBarFill,
+.chartMonth.selected .chartBarFill { opacity: 1; }
+
+.chartMonthLabel {
+  padding: 8px 2px;
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1.2;
+  background: transparent;
+  color: var(--ink);
+}
+
+.chartMonth.selected .chartMonthLabel {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.chartMethod {
+  max-width: 950px;
+  margin: 10px 0 0;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #485268;
+}
+
+.chartDetail {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 24px;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(16, 21, 40, 0.16);
+  font-size: 13px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .summaryTrends { animation: none; }
+  .chartBarFill { transition: none; }
+}
+
+@media (max-width: 900px) {
+  .summaryHeader { align-items: start; flex-direction: column; }
+}
+
+@media (max-width: 640px) {
+  .summaryControls { width: 100%; }
+  .summaryControls > .summarySelect { flex: 1; }
+  .summarySegments button { padding: 10px; }
+  .chartScopes { flex-wrap: wrap; }
+  .trendChart { grid-template-columns: 58px minmax(0, 1fr); gap: 6px; }
+  .summaryBlock .countryRow { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .countryName { grid-column: 1 / -1; }
+  .countryMetric { padding: 8px 4px; }
+}
+
 .sectionHeader {
   display: flex;
   justify-content: space-between;
