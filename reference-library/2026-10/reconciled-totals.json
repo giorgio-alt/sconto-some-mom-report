@@ -1,0 +1,38 @@
+[
+  {
+    "segment": "clanek-cz-report",
+    "count": 6,
+    "spend": 178.03,
+    "results": 1403
+  },
+  {
+    "segment": "clanek-sk-report",
+    "count": 7,
+    "spend": 190.46,
+    "results": 1418
+  },
+  {
+    "segment": "fb-posts-cz",
+    "count": 21,
+    "spend": 366.5,
+    "results": 101860
+  },
+  {
+    "segment": "fb-posts-sk",
+    "count": 21,
+    "spend": 361.5,
+    "results": 125432
+  },
+  {
+    "segment": "ig-post-reporting-cz",
+    "count": 19,
+    "spend": 306.32,
+    "results": 69204
+  },
+  {
+    "segment": "ig-post-reporting-sk",
+    "count": 17,
+    "spend": 304.79,
+    "results": 73845
+  }
+]

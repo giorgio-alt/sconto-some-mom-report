@@ -1,6 +1,7 @@
 import { AUGUST_2026_RECORDS } from "./august-data";
 import { JULY_2026_RECORDS } from "./july-data";
 import { SEPTEMBER_2026_RECORDS } from "./september-data";
+import { OCTOBER_2026_RECORDS } from "./october-data";
 
 export type Country = "CZ" | "SK";
 export type Platform = "instagram" | "facebook";
@@ -933,4 +934,5 @@ export const REPORT_DATA = [
   ...JULY_2026_RECORDS,
   ...AUGUST_2026_RECORDS,
   ...SEPTEMBER_2026_RECORDS,
+  ...OCTOBER_2026_RECORDS,
 ] satisfies ReportRow[];
